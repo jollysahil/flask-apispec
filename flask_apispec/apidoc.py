@@ -63,10 +63,11 @@ class Converter:
         docs = merge_recursive(annotation.options)
         operation = {
             'responses': self.get_responses(view, parent),
-            'parameters': self.get_parameters(rule, view, docs, parent),
+            'requestBody': self.get_parameters(rule, view, docs, parent),
         }
         docs.pop('params', None)
         return merge_recursive([operation, docs])
+
 
     def get_parent(self, view):
         return None

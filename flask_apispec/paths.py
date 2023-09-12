@@ -2,6 +2,8 @@ import re
 
 import werkzeug.routing
 
+from flask_apispec import utils
+
 PATH_RE = re.compile(r'<(?:[^:<>]+:)?([^<>]+)>')
 
 
@@ -31,23 +33,22 @@ def rule_to_params(rule, overrides=None, *, major_api_version = 2):
     return result
 
 def argument_to_param(argument, rule, override=None, *, major_api_version=2):
-    param = {
-        'in': 'path',
-        'name': argument,
-        'required': True,
-    }
     type_, format_ = CONVERTER_MAPPING.get(type(rule._converters[argument]), DEFAULT_TYPE)
     schema = {}
     schema['type'] = type_
     if format_ is not None:
         schema['format'] = format_
-    if rule.defaults and argument in rule.defaults:
-        param['default'] = rule.defaults[argument]
     if major_api_version == 2:
+       param = {'in': 'path','name': argument,'required': False}
        param.update(schema)
     elif major_api_version == 3:
-       param['schema'] = schema
+       param = {
+           'required': True,
+           'content': utils.get_content(schema),
+       }
     else:
        raise NotImplementedError("No support for OpenAPI / Swagger Major version {}".format(major_api_version))
+    if rule.defaults and argument in rule.defaults:
+        param['default'] = rule.defaults[argument]
     param.update(override or {})
     return param

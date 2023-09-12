@@ -86,6 +86,14 @@ def resolve_annotations(func, key, parent=None):
         Annotation(),
     )
 
+def get_content(schema):
+    # TODO add other content types as we need them
+    return {
+        'application/json': {
+            'schema': schema
+        }
+    }
+
 def merge_recursive(values):
     return functools.reduce(_merge_recursive, values, {})
 
